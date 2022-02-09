@@ -1,32 +1,16 @@
-const express = require('express');
-const { animals } = require('./data/animals.json');
 const fs = require ('fs');
 const path = require ('path');
+
+const express = require('express');
+const { animals } = require('./data/animals.json');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-//add validation to our data 
-// going to take our new animal data from req.body 
-//and check if each key not only exists, 
-//but that it is also the right type of data. 
-//Add the following validateAnimal() function to server.js
+app.use(express.urlencoded({ extended: true}));
+app.use(express.json());
 
-function validateAnimal(animal) {
-    if (!animal.name || typeof animal.name !== 'string') {
-      return false;
-    }
-    if (!animal.species || typeof animal.species !== 'string') {
-      return false;
-    }
-    if (!animal.diet || typeof animal.diet !== 'string') {
-      return false;
-    }
-    if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
-      return false;
-    }
-    return true;
-  }
+
 
 function filterByQuery(query, animalsArray) {
     let personalityTraitsArray = [];
@@ -67,6 +51,7 @@ function filterByQuery(query, animalsArray) {
     return filteredResults;
   }
 
+
   
   function findById(id, animalsArray) {
     const result = animalsArray.filter(animal => animal.id === id)[0];
@@ -87,7 +72,27 @@ b
       //return finished code to post route for response
       return animal;
   }
+//add validation to our data 
+// going to take our new animal data from req.body 
+//and check if each key not only exists, 
+//but that it is also the right type of data. 
+//Add the following validateAnimal() function to server.js
 
+function validateAnimal(animal) {
+    if (!animal.name || typeof animal.name !== 'string') {
+      return false;
+    }
+    if (!animal.species || typeof animal.species !== 'string') {
+      return false;
+    }
+    if (!animal.diet || typeof animal.diet !== 'string') {
+      return false;
+    }
+    if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+      return false;
+    }
+    return true;
+  }
   app.get('/api/animals', (req, res) => {
     let results = animals;
   if (req.query) {
