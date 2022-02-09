@@ -1,9 +1,32 @@
 const express = require('express');
 const { animals } = require('./data/animals.json');
+const fs = require ('fs');
+const path = require ('path');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+//add validation to our data 
+// going to take our new animal data from req.body 
+//and check if each key not only exists, 
+//but that it is also the right type of data. 
+//Add the following validateAnimal() function to server.js
+
+function validateAnimal(animal) {
+    if (!animal.name || typeof animal.name !== 'string') {
+      return false;
+    }
+    if (!animal.species || typeof animal.species !== 'string') {
+      return false;
+    }
+    if (!animal.diet || typeof animal.diet !== 'string') {
+      return false;
+    }
+    if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+      return false;
+    }
+    return true;
+  }
 
 function filterByQuery(query, animalsArray) {
     let personalityTraitsArray = [];
@@ -50,6 +73,20 @@ function filterByQuery(query, animalsArray) {
     return result;
   }
 
+  function createNewAnimal(body, animalsArray){
+      const animal = body;
+      animalsArray.push(animal);
+      // our functions main code will go here
+
+      fs.writeFileSync(
+          path.join(__dirname, './data/animals.json' ),
+          JSON.stringify({ animals: animalsArray }), null, 2) 
+          );
+b
+    
+      //return finished code to post route for response
+      return animal;
+  }
 
   app.get('/api/animals', (req, res) => {
     let results = animals;
@@ -68,15 +105,28 @@ app.get('/api/animals/:id', (req, res) => {
     }
   });
 
+
   app.post('/api/animals', (req, res) => {
-       // req.body is where our incoming content will be
-       console.log(req.body);
-       res.json(req.body);
+      // set id based on what the next index of the array will be
+  req.body.id = animals.length.toString();
+
+  
+  // add animal to json file and animals array in this function
+  const animal = createNewAnimal(req.body, animals);
+
+  res.json(animal);
+
+//   res.json(req.body);
   });
 
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}!`);
   });
+
+  // parse incoming string or array data
+app.use(express.urlencoded({ extended: true }));
+// parse incoming JSON data
+app.use(express.json());
 
 
   
